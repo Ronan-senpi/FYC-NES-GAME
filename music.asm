@@ -10,6 +10,22 @@ PPUDATA   EQU $2007
 JOYPAD1   EQU $4016
 
 
+; Parametres de Famitone2
+FT_BASE_ADR		= $0300	;Adresse en RAM à laquelle Famitone2 sauvegardera ses variables. Doit terminer par $xx00
+FT_TEMP			= $00	;3 octets requis par Famitone2
+FT_DPCM_OFF		= $c000	;$c000..$ffc0, 64-byte steps
+FT_SFX_STREAMS	= 4		;Nombre d'SFX autorisés simultanément, 1..4
+
+FT_DPCM_ENABLE			;Commenter pour exclure tout le code de gestion du DMC
+;FT_SFX_ENABLE			;Commenter pour exclure tout le code de gestion des SFX
+FT_THREAD				;Commenter si tous les appels de Famitone2 sont sur le même thread
+
+FT_PAL_SUPPORT			;Commenter pour exclure le support du format PAL
+FT_NTSC_SUPPORT			;Commenter pour exclure le support du format NTSC
+NTSC_MODE		.dsb 0; 0 pour PAL, 1 pour NTSC
+
+
+
     ENUM $0000  ; Les variables "rapides"
 vbl_cnt  DS.B 1  ; Compteur de VBL (50 Hz)
 vbl_flag DS.B 1  ; Mis à 1 par la VBL
