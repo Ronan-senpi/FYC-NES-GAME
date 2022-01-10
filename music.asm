@@ -9,23 +9,6 @@ PPUADDR   EQU $2006
 PPUDATA   EQU $2007
 JOYPAD1   EQU $4016
 
-
-; Parametres de Famitone2
-FT_BASE_ADR		= $0300	;Adresse en RAM à laquelle Famitone2 sauvegardera ses variables. Doit terminer par $xx00
-FT_TEMP			= $00	;3 octets requis par Famitone2
-FT_DPCM_OFF		= $c000	;$c000..$ffc0, 64-byte steps
-FT_SFX_STREAMS	= 4		;Nombre d'SFX autorisés simultanément, 1..4
-
-FT_DPCM_ENABLE			;Commenter pour exclure tout le code de gestion du DMC
-;FT_SFX_ENABLE			;Commenter pour exclure tout le code de gestion des SFX
-FT_THREAD				;Commenter si tous les appels de Famitone2 sont sur le même thread
-
-FT_PAL_SUPPORT			;Commenter pour exclure le support du format PAL
-FT_NTSC_SUPPORT			;Commenter pour exclure le support du format NTSC
-NTSC_MODE		.dsb 0; 0 pour PAL, 1 pour NTSC
-
-
-
     ENUM $0000  ; Les variables "rapides"
 vbl_cnt  DS.B 1  ; Compteur de VBL (50 Hz)
 vbl_flag DS.B 1  ; Mis à 1 par la VBL
@@ -43,6 +26,22 @@ direction DS.B 1  ; Le sens de variation de l'offset
 
     ; debut de la partie code du programme
     BASE $C000
+
+
+; Parametres de Famitone2
+FT_BASE_ADR		= $0300	;Adresse en RAM à laquelle Famitone2 sauvegardera ses variables. Doit terminer par $xx00
+FT_TEMP			= $00	;3 octets requis par Famitone2
+FT_DPCM_OFF		= $c000	;$c000..$ffc0, 64-byte steps
+FT_SFX_STREAMS	= 4		;Nombre d'SFX autorisés simultanément, 1..4
+
+FT_DPCM_ENABLE			;Commenter pour exclure tout le code de gestion du DMC
+;FT_SFX_ENABLE			;Commenter pour exclure tout le code de gestion des SFX
+FT_THREAD				;Commenter si tous les appels de Famitone2 sont sur le même thread
+
+FT_PAL_SUPPORT			;Commenter pour exclure le support du format PAL
+FT_NTSC_SUPPORT			;Commenter pour exclure le support du format NTSC
+NTSC_MODE		.dsb 0; 0 pour PAL, 1 pour NTSC
+
 RESET:
   ; remise a zero du compteur de vbl et du controle & du mask du ppu, ainsi que de l apu
   LDA #0        ; 0 dans l'accumulateur A
@@ -143,6 +142,16 @@ RESET:
   LDA #%00011110 ; On veut montrer le fond au moins
   STA PPUMASK
 
+  ;On initialise Famitone2 avec les 3 parametres :
+  ; X et Y : deux pointeurs vers les données de la musique souhaitée
+  ; A : 0 pour PAL, autre chose pour NTSC
+	ldx #<SmellLikeTeenSpirit_music_data ; premier pointeur vers la musique stocké dans X
+	ldy #>SmellLikeTeenSpirit_music_data ; deuxième pointeur vers la musique stocké dans Y
+	lda NTSC_MODE                        ; on charge notre variable NTSC_MODE dans A
+	jsr FamiToneInit                     ; on lance la fonction qui initialise Famitone		
+	lda #0                               ; l'identifiant du sous morceau à lire (plusieurs morceaux peuvent etre contenu dans un seul .asm pour gagner de la place)
+	jsr FamiToneMusicPlay                ; on déclanche le lancement de la chanson
+
   JMP mainloop
 
 
@@ -164,6 +173,9 @@ mainloop:
   BEQ -
   LDA #0       ; et on réinitialise le drapeau
   STA vbl_flag
+
+  
+  jsr FamiToneUpdate ; On lance l'update de l'audio pour que Famitone change les adresses de l'APU pour la frame actuelle
 
 ;; Mise à jour de l'offset
   ; On va lire le joypad
@@ -207,6 +219,9 @@ a_droite
 
 .include "palette.asm"
 .include "nametables.asm"
+.include "famitone2_asm6.asm";librairie Famitone2 qui gère l'audio
+.include "SmellLikeTeenSpirit.asm";morceau converti de .txt (FamiTracker) en .asm avec le tool 'text2data' de Famitone2
+
 
 ; vecteurs d interruptions du 6502, la nes possède 3 vecteurs d'interruptions, on ne se servira que de RESET et de VBL ici
   ORG $FFFA
