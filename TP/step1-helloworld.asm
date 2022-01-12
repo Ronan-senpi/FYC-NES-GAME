@@ -92,17 +92,6 @@ RESET:
 
   ; charger la nametable
 
-  LDX #0            ; X = compteur de pages de 256 octes
-  LDY #0            ; Y = décalage dans une page
-- LDA (pointer),Y   ; On récupère la Yième donnée
-  STA PPUDATA       ;   que l'on transmet au PPU
-  INY               ; Passage à la donnée suivante
-  BNE -             ; Jusqu'à Y = 256 (== 0)
-  INC pointer+1     ; Sinon on incrémente le poids fort du pointeur
-  INX               ; Et on passe à la page suivante
-  CPX #8            ; Pendant 8 pages (8 * 256 = 2 Ko)
-  BNE -
-
   BIT PPUSTATUS ; Resynchronisation
 - BIT PPUSTATUS ; On attend une dernière fois
   BPL -
