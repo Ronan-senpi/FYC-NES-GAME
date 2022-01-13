@@ -153,7 +153,7 @@ draw_mario:
   STA OAMDATA
   LDA #$32     ; Adresse de la tile (en hex)
   STA OAMDATA 
-  LDA #$2       ; La palette utilisé
+  LDA #%00000000 ; attributs flag
   STA OAMDATA 
   LDA #128     ; Position en X (en pixel)
   STA OAMDATA
@@ -162,7 +162,7 @@ draw_mario:
   STA OAMDATA
   LDA #$33
   STA OAMDATA ; Tile
-  LDA #$2
+  LDA #%00000000 ; attributs flag
   STA OAMDATA ; Attr
   LDA #136     ; X
   STA OAMDATA
@@ -171,7 +171,7 @@ draw_mario:
   STA OAMDATA
   LDA #$42
   STA OAMDATA ; Tile
-  LDA #$2
+  LDA #%00000000 ; attributs flag
   STA OAMDATA ; Attr
   LDA #128     ; X
   STA OAMDATA
@@ -180,7 +180,7 @@ draw_mario:
   STA OAMDATA
   LDA #$43
   STA OAMDATA ; Tile
-  LDA #$2
+  LDA #%00000000 ; attributs flag
   STA OAMDATA ; Attr
   LDA #136     ; X
   STA OAMDATA
